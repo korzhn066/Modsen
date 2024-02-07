@@ -1,11 +1,11 @@
-Инструкция:
+<h1>Installing</h1>
 
--бд добавится сама, нужно просто запустить проект
+1.Clone the repository:
 
-Примечание:
+`git clone https://github.com/korzhn066/Modsen.git`
 
--вынес жанр в отдельную сущность, так как в реальном приложении в будущем может понадобиться функциональность получить все книги по жанру
+2.Open the solution file Modsen.sln in Visual Studio.
 
--не совсем понял нужна ли механика авторизации, поэтому сделал, чтобы только авторизованный пользователь мог получить доступ к функционалу приложения
+3.Build the solution by pressing Ctrl + Shift + B or by navigating to Build -> Build Solution.
 
--реквизиты для входа username: user,password: user
+4.Run the application by pressing F5 or by navigating to Debug -> Start Debugging.
