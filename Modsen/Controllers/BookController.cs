@@ -1,68 +1,76 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Modsen.Dto;
-using Modsen.Services.Interfaces;
+using Modsen.Application.Features.Book;
+using Modsen.Application.Features.Book.Commands;
+using Modsen.Application.Features.Book.Queries;
+using System.Threading;
 
 namespace Modsen.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
     public class BookController : ControllerBase
     {
-        private readonly IBookService _bookService;
+        private readonly IMediator _mediator;
 
-        public BookController(IBookService bookService)
+        public BookController(IMediator mediator)
         {
-            _bookService = bookService;
-        }
-
-        [HttpGet]
-        [Route("GetAll")]
-        public async Task<IActionResult> GetAll()
-        {
-            var books = await _bookService.GetAllBooksAsync();
-
-            return Ok(books);
+            _mediator = mediator;
         }
 
         [HttpGet]
         [Route("GetById")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
         {
-            var books = await _bookService.GetBookByIdAsync(id);
+            var book = await _mediator.Send(new GetBookById() { Id = id }, cancellationToken);
+
+            return Ok(book);
+        }
+
+        [HttpGet]
+        [Route("GetAll")]
+        public async Task<IActionResult> GetAll(int page, int count, CancellationToken cancellationToken)
+        {
+            var books = await _mediator.Send(new GetAllBooks() { Page = page, Count = count}, cancellationToken);
 
             return Ok(books);
         }
 
         [HttpGet]
         [Route("GetByISBN")]
-        public async Task<IActionResult> GetByISBN(string ISBN)
+        public async Task<IActionResult> GetByISBN(string ISBN, CancellationToken cancellationToken)
         {
-            var books = await _bookService.GetBookByISBNAsync(ISBN);
+            var books = await _mediator.Send(new GetBookByISBN() { ISBN = ISBN }, cancellationToken);
 
             return Ok(books);
         }
 
         [HttpDelete]
         [Route("Delete")]
-        public async Task Delete(int id)
+        public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
         {
-            await _bookService.DeleteBookAsync(id);
+            await _mediator.Send(new DeleteBook() { Id = id }, cancellationToken);
+
+            return NoContent();
         }
 
-        [HttpPost]
+        [HttpPut]
         [Route("Add")]
-        public async Task Add(AddBookDto addBookDto)
+        public async Task<IActionResult> Add(AddBook addBook, CancellationToken cancellationToken)
         {
-            await _bookService.AddBookAsync(addBookDto);
+            await _mediator.Send(addBook, cancellationToken);
+
+            return NoContent();
         }
 
-        [HttpPost]
+        [HttpPatch]
         [Route("Update")]
-        public async Task Update(UpdateBookDto addBookDto)
+        public async Task<IActionResult> Update(int Id, string Name, CancellationToken cancellationToken)
         {
-            await _bookService.UpdateBookAsync(addBookDto);
+            await _mediator.Send(new UpdateBook() { Id = Id, Name = Name }, cancellationToken);
+
+            return NoContent();
         }
     }
 }
